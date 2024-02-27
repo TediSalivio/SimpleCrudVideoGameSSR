@@ -1,0 +1,190 @@
+﻿@page "/video_games"
+
+@using Microsoft.AspNetCore.Antiforgery
+@using VideoGameSSR.Components.Pages
+@using System.ComponentModel.DataAnnotations;
+
+@attribute [StreamRendering]
+
+<!-- Add Game Modal -->
+<EditForm method="post" Enhance Model="@addVideoGameModel" FormName="AddVideoGameForm" OnValidSubmit="AddGame">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="modal fade" id="add-video-game-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Add Game</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="CloseAddModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="add-title" class="form-label">Title</label>
+                        <InputText id="add-title" class="form-control" @bind-Value="@addVideoGameModel.Title"></InputText>
+                        <ValidationMessage For="@(() => addVideoGameModel.Title)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-publisher" class="form-label">Publisher</label>
+                        <InputText id="add-publisher" class="form-control" @bind-Value="@addVideoGameModel.Publisher"></InputText>
+                        <ValidationMessage For="@(() => addVideoGameModel.Publisher)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="add-release-year" class="form-label">Release Year</label>
+                        <InputNumber id="add-release-year" class="form-control" @bind-Value="@addVideoGameModel.ReleaseYear"></InputNumber>
+                        <ValidationMessage For="@(() => addVideoGameModel.ReleaseYear)" />
+                    </div>
+                </div>
+                <div id="add-game-loading" class="d-none d-flex justify-content-center p-3">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="add-game-button-container" class="d-block d-flex justify-content-end gap-2 p-3">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseAddModal()">Close</button>
+                    <button type="submit" class="btn btn-primary" onclick="ShowButtonSpinner('Add')">Add Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+<!-- Edit Game Modal -->
+<EditForm method="post" Enhance Model="@editVideoGameModel" FormName="EditVideoGameForm" OnSubmit="UpdateGame">
+    <div class="modal fade" id="edit-video-game-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Game</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="CloseEditModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit-title" class="form-label">Title</label>
+                        <InputNumber id="edit-game-id" class="form-control d-none" @bind-Value="@editVideoGameModel.Id"></InputNumber>
+                        <InputText id="edit-title" class="form-control" @bind-Value="@editVideoGameModel.Title"></InputText>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-publisher" class="form-label">Publisher</label>
+                        <InputText id="edit-publisher" class="form-control" @bind-Value="@editVideoGameModel.Publisher"></InputText>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit-release-year" class="form-label">Release Year</label>
+                        <InputNumber id="edit-release-year" class="form-control" @bind-Value="@editVideoGameModel.ReleaseYear"></InputNumber>
+                    </div>
+                </div>
+                <div id="edit-game-loading" class="d-none d-flex justify-content-center p-3">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="edit-game-button-container" class="d-block d-flex justify-content-end gap-2 p-3">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseEditModal()">Close</button>
+                    <button type="submit" class="btn btn-primary" onclick="ShowButtonSpinner('Edit')">Edit Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+<!-- Remove Game Modal -->
+<EditForm method="post" Enhance Model="@deleteVideoGameModel" FormName="DeleteVideoGameForm" OnSubmit="DeleteGame">
+    <div class="modal fade" id="remove-video-game-modal" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Delete Game</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close" onclick="CloseDeleteModal()"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <InputNumber id="delete-game-id" class="form-control d-none" @bind-Value="@deleteVideoGameModel.Id"></InputNumber>
+                    Are you sure you want to remove the selected game?
+                </div>
+                <div id="delete-game-loading" class="d-none d-flex justify-content-center p-3">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="delete-game-button-container" class="d-block d-flex justify-content-end gap-2 p-3">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" onclick="CloseDeleteModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" onclick="ShowButtonSpinner('Delete')">Delete Game</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+<!-- Main Page Container -->
+<div class="container">
+    <div class="d-flex justify-content-end">
+        <!-- Search Video Game Form -->
+        <EditForm method="post" Enhance Model="@this" FormName="SearchVideoGameForm" OnSubmit="SearchNameByTitle">
+            <div class="input-group mb-3">
+                <InputText class="form-control" @bind-Value="@searchVideoGame" placeholder="Search"></InputText>
+                <button type="submit" class="btn btn-outline-success"><i class="bi bi-search"></i></button>
+            </div>
+        </EditForm>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Refresh Page Form -->
+        <form method="post" data-enhance @onsubmit="@(() => LoadVideoGamesList())" @formname="RefreshPageForm">
+            <AntiforgeryToken/>
+            <button type="submit" class="btn btn-success"> <i class="bi bi-arrow-clockwise"></i> Refresh </button>
+        </form>
+        <button type="button" class="btn btn-success ms-auto" data-toggle="modal" data-target="#add-video-game-modal" title="Add Video Game" onclick="CloseAddModal()"><i class="bi bi-plus-circle"></i> Add new game</button>
+    </div>
+
+    <!-- Sort Video Game Form -->
+    <EditForm id="SortVideoGamesForm" method="post" Enhance Model="@this" FormName="SortVideoGameForm" OnSubmit="SortVideoGame">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Title <i id="sort-by-title" class="filter-icon bi bi-filter" data-toggle="tooltip" title="Sort by Title" onclick="SortVideoGamesBy('title')"></i></th>
+                    <th scope="col">Publisher <i id="sort-by-publisher" class="filter-icon bi bi-filter" data-toggle="tooltip" title="Sort by Publisher" onclick="SortVideoGamesBy('publisher')"></i></th>
+                    <th scope="col">Release Year <i id="sort-by-release-year" class="filter-icon bi bi-filter" data-toggle="tooltip" title="Sort by Release Year" onclick="SortVideoGamesBy('release-year')"></i></th>
+                    <th scope="col">Action</th>
+                    <InputText id="sort-by-value-holder" class="form-control d-none" @bind-Value="@sortVideoGame"></InputText>
+                </tr>
+            </thead>
+            @if(!isLoading)
+            {
+                <tbody id="video-games-orig-body">
+                    @if(videoGamesDictionary.Count > 0)
+                    {
+                        @foreach (var game in videoGamesDictionary.Values)
+                        {
+                            <tr>
+                                <td>@game.Title</td>
+                                <td>@game.Publisher</td>
+                                <td>@game.ReleaseYear</td>
+                                <td>
+                                    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#edit-video-game-modal" title="Edit Video Game" onclick="OpenEditModal('@game.Id', '@game.Title', '@game.Publisher', '@game.ReleaseYear')"><i class="bi bi-pen"></i></button>
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#remove-video-game-modal" title="Delete Video Game" onclick="OpenDeleteModal('@game.Id')"><i class="bi bi-trash-fill"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="4">No result</td>
+                        </tr>
+                    }
+                </tbody>
+                <tbody id="video-games-loading-body" class="d-none">
+                    <tr>
+                        <td colspan="4">Sorting...</td>
+                    </tr>
+                </tbody>
+            }
+            else
+            {
+                <tbody>
+                    <tr>
+                        <td colspan="4">Loading...</td>
+                    </tr>
+                </tbody>
+            }
+        </table>
+    </EditForm>
+</div>
